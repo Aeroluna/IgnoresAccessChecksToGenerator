@@ -100,6 +100,7 @@ namespace IgnoresAccessChecksToGenerator.Tasks
 
             var content = attributes + @"
 
+// ReSharper disable once CheckNamespace
 namespace System.Runtime.CompilerServices
 {
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -109,7 +110,8 @@ namespace System.Runtime.CompilerServices
         {
         }
     }
-}";
+}
+";
             var filePath = Path.Combine(path, "IgnoresAccessChecksTo.cs");
             File.WriteAllText(filePath, content);
 
@@ -129,42 +131,29 @@ namespace System.Runtime.CompilerServices
             {
                 foreach (var type in module.GetTypes().Where(type=>!types.Contains(type.FullName)))
                 {
-                    if (!type.IsNested && type.IsNotPublic)
+                    if (type.IsNested)
                     {
-                        type.IsPublic = true;
+                        type.Attributes = (type.Attributes & ~TypeAttributes.NestedPrivate) | TypeAttributes.NestedPublic;
                     }
-                    else if (type.IsNestedAssembly ||
-                             type.IsNestedFamilyOrAssembly ||
-                             type.IsNestedFamilyAndAssembly)
+                    else
                     {
-                        type.IsNestedPublic = true;
+                        type.Attributes = (type.Attributes & ~TypeAttributes.NotPublic) | TypeAttributes.Public;
                     }
 
                     foreach (var field in type.Fields)
                     {
-                        if (field.IsAssembly ||
-                            field.IsFamilyOrAssembly ||
-                            field.IsFamilyAndAssembly)
-                        {
-                            field.IsPublic = true;
-                        }
+                        field.Attributes = (field.Attributes & ~FieldAttributes.Private) | FieldAttributes.Public;
                     }
 
                     foreach (var method in type.Methods)
                     {
+                        method.Attributes = (method.Attributes & ~MethodAttributes.Private) | MethodAttributes.Public;
                         if (UseEmptyMethodBodies && method.HasBody)
-                        {    
+                        {
                             var emptyBody = new Mono.Cecil.Cil.MethodBody(method);
                             emptyBody.Instructions.Add(Mono.Cecil.Cil.Instruction.Create(Mono.Cecil.Cil.OpCodes.Ldnull));
                             emptyBody.Instructions.Add(Mono.Cecil.Cil.Instruction.Create(Mono.Cecil.Cil.OpCodes.Throw));
                             method.Body = emptyBody;
-                        }
-
-                        if (method.IsAssembly ||
-                            method.IsFamilyOrAssembly ||
-                            method.IsFamilyAndAssembly)
-                        {
-                            method.IsPublic = true;
                         }
                     }
                 }

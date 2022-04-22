@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IgnoresAccessChecksToGenera
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{D43D3D13-84B1-4D21-8E36-52BED4056097}"
 	ProjectSection(SolutionItems) = preProject
-		Build\IgnoresAccessChecksToGenerator.targets = Build\IgnoresAccessChecksToGenerator.targets
+		Build\IgnoresAccessChecksToGenerator.All.targets = Build\IgnoresAccessChecksToGenerator.All.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{1CD3690D-3079-4F56-B140-036590665068}"
